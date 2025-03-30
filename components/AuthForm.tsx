@@ -10,16 +10,20 @@ import { Form } from "@/components/ui/form"
 import CustomInput from './CustomInput'
 import { authformSchema } from '@/lib/utils'
 import { Loader2 } from 'lucide-react'
+import SignUp from '@/app/(auth)/sign-up/page'
+import { useRouter } from 'next/navigation'
 
 
 const AuthForm = ({ type }: { type: string }) => {
 
   const [user, setUser] = useState(null)
   const [loading, setLoading] = useState(false)
+  const formSchema = authformSchema(type);
+  const router = useRouter()
 
   // 1. Define the form.
-  const form = useForm<z.infer<typeof authformSchema>>({
-    resolver: zodResolver(authformSchema),
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
     defaultValues: {
       email: "",
       password: "",
@@ -27,12 +31,31 @@ const AuthForm = ({ type }: { type: string }) => {
   })
 
   // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof authformSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
+  const onSubmit = async (data: z.infer<typeof formSchema>) => {
     setLoading(true)
-    console.log(values)
-    setLoading(false)
+    try {
+      // sign up with appwrite & create plaid link token
+      if (type === "sign-up") {
+        // const newUser =await signUp(data)
+        // setUser(newUser)
+
+      }
+      if (type === "sign-in") {
+        // const response = await signIn({
+        //   email: data.email,
+        //   password: data.password,
+        // })
+
+        // if(response) router.push("/")
+
+      }
+    } catch (error) {
+      console.log(error)
+
+    } finally {
+      setLoading(false)
+    }
+
   }
   return (
     <section className='auth-form'>
@@ -71,20 +94,47 @@ const AuthForm = ({ type }: { type: string }) => {
         <>
           <Form {...form}>
             <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
+
+              {type === 'sign-up' && (
+                <>
+                  <div className='flex gap-4'>
+                    <CustomInput control={form.control} name="firstName" lable="First Name" placeholder="Enter your first name" />
+                    <CustomInput control={form.control} name="lastName" lable="Last Name" placeholder="Enter your last name" />
+                  </div>
+
+                  <CustomInput control={form.control} name="address1" lable="Address" placeholder="Enter your address" />
+                  <CustomInput control={form.control} name="city" lable="City" placeholder="Enter your city" />
+                  <div className='flex gap-4'>
+                    <CustomInput control={form.control} name="state" lable="State" placeholder="Enter your state" />
+                    <CustomInput control={form.control} name="postalCode" lable="Zip" placeholder="Enter your zip code" />
+                  </div>
+                  <div className='flex gap-4'>
+                    <CustomInput control={form.control} name="dateOfBirth" lable="Date of Birth" placeholder="YYYY-MM-DD" />
+                    <CustomInput control={form.control} name="ssn" lable="Social Security Number" placeholder="Ex: 123-45-6789" />
+                  </div>
+                </>
+              )}
+
               <CustomInput control={form.control} name="email" lable="Email" placeholder="Enter your email" />
               <CustomInput control={form.control} name="password" lable="Password" placeholder="Enter your password" />
-              <Button type="submit" className='form-btn' disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2 size={20} className='animate-spin' /> &nbsp; Loading...
-                  </>
-                ) : type === 'sign-in' ? "Sign In" : "Sign Up"}
-              </Button>
+
+              <div className='flex flex-col gap-4'>
+                <Button type="submit" className='form-btn' disabled={loading}>
+                  {loading ? (
+                    <>
+                      <Loader2 size={20} className='animate-spin' /> &nbsp; Loading...
+                    </>
+                  ) : type === 'sign-in' ? "Sign In" : "Sign Up"}
+                </Button>
+              </div>
             </form>
           </Form>
 
-          <footer>
-            
+          <footer className='flex justify-center gap-1'>
+            <p className='text-14 font-normal text-gray-600'>{type === 'sign-in' ? "Don't have an account?" : "Already have an account?"}</p>
+            <Link href={type === 'sign-in' ? "/sign-up" : "/sign-in"} className='form-link'>
+              {type === 'sign-in' ? "Sign up" : "Sign in"}
+            </Link>
           </footer>
         </>
       )}
