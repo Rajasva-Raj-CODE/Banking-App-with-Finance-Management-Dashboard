@@ -72,7 +72,7 @@ const MobileNav = ({ user }: MobileNavProps) => {
                 <h1 className="text-16 font-ibm-plex-serif font-bold text-black-1">USER</h1>
               </nav>
             </SheetClose>
-            <Footer user={user} />
+            <Footer user={user} type='mobile'/>
           </div>
         </SheetContent>
       </Sheet>
